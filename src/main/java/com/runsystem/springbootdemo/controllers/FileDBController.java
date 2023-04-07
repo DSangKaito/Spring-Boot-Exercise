@@ -1,5 +1,6 @@
 package com.runsystem.springbootdemo.controllers;
 
+import com.runsystem.springbootdemo.common.Message;
 import com.runsystem.springbootdemo.models.FileDB;
 import com.runsystem.springbootdemo.payloads.response.FileDBResponse;
 import com.runsystem.springbootdemo.repositories.FileDBRepository;
@@ -31,13 +32,13 @@ public class FileDBController {
         String message = "";
         try {
             if (fileDBService.store(file) == null) {
-                message = "Input file Invalid!";
+                message = Message.INPUT_INVALID;
                 return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
             }
-            message = "Uploaded the file successfully: " + file.getOriginalFilename();
+            message = Message.ACTION_SUCCESS + " File: " + file.getOriginalFilename();
             return ResponseEntity.status(HttpStatus.OK).body(message);
         } catch (Exception e) {
-            message = "Could not upload the file: " + file.getOriginalFilename() + "!";
+            message = Message.ACTION_FAIL + "File: " + file.getOriginalFilename() + "!";
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
         }
     }

@@ -22,6 +22,7 @@ public class FileDBServiceImpl implements FileDBService {
     public FileDB store(MultipartFile file) throws IOException {
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         FileDB image = new FileDB(fileName, file.getContentType(), file.getBytes());
+        // check type of file - just allow world, pdf, excel files.
         if (!(Objects.equals(file.getContentType(), "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
                 || Objects.equals(file.getContentType(), "application/msword")
                 || Objects.equals(file.getContentType(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
