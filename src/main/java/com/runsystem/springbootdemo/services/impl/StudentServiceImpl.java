@@ -1,27 +1,22 @@
 package com.runsystem.springbootdemo.services.impl;
 
-import com.runsystem.springbootdemo.common.Message;
 import com.runsystem.springbootdemo.models.Student;
 import com.runsystem.springbootdemo.models.StudentInfo;
 import com.runsystem.springbootdemo.payloads.mapping.response.StudentResponseMapper;
 import com.runsystem.springbootdemo.payloads.request.StudentCodeAndNameAndDateRequest;
 import com.runsystem.springbootdemo.payloads.request.StudentRequest;
-import com.runsystem.springbootdemo.payloads.response.DataResponse;
 import com.runsystem.springbootdemo.payloads.response.StudentResponse;
 import com.runsystem.springbootdemo.repositories.StudentInfoRepository;
 import com.runsystem.springbootdemo.repositories.StudentRepository;
 import com.runsystem.springbootdemo.services.StudentService;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.support.PagedListHolder;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.Cacheable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 
 @Service
@@ -36,7 +31,8 @@ public class StudentServiceImpl implements StudentService {
     StudentResponseMapper studentResponseMapper = Mappers.getMapper(StudentResponseMapper.class);
 
     @Override
-    public Page<StudentResponse> getAllStudent(Integer pageNumber) {
+    @Cacheable(value = "StudentResponse")
+    public List<StudentResponse> getAllStudent() {
         List<Student> studentList = studentRepository.findAll();
         if (studentList.size() == 0) {
             return null;
@@ -49,21 +45,11 @@ public class StudentServiceImpl implements StudentService {
             studentResponse = studentResponseMapper.INSTANCE.getStudentResponse(student, studentInfo);
             studentResponseList.add(studentResponse);
         }
-        // 1. PageListHolder
-        PagedListHolder<StudentResponse> studentPagedListHolder = new PagedListHolder<StudentResponse>(studentResponseList);
-        studentPagedListHolder.setPage(pageNumber - 1);
-        studentPagedListHolder.setPageSize(2);
-
-        //2. PropertyComparator
-        List<StudentResponse> pageSlice = studentPagedListHolder.getPageList();
-        //PropertyComparator.sort(pageSlice, new MutableSortDefinition("id", true, true));
-
-        //3. PageImpl
-        Pageable pageable = PageRequest.of(pageNumber - 1, studentResponseList.size());
-        return new PageImpl<>(pageSlice, pageable, studentResponseList.size());
+        return studentResponseList;
     }
 
     @Override
+    @Cacheable(value = "StudentResponse")
     public StudentResponse getStudentByStudentId(Integer studentId) {
         Student student = studentRepository.findStudentByStudentId(studentId);
         StudentInfo studentInfo = studentInfoRepository.findStudentInfoByStudent(student);
@@ -71,10 +57,11 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public DataResponse updateStudentByStudentId(StudentRequest studentRequest, Integer id) {
+    @CachePut(value = "StudentResponse")
+    public StudentResponse updateStudentByStudentId(StudentRequest studentRequest, Integer id) {
         Student student = studentRepository.findStudentByStudentId(id);
         if (student == null) {
-            return new DataResponse("400", Message.NO_STUDENT);
+            return null;
         }
         StudentInfo studentInfo = studentInfoRepository.findStudentInfoByStudent(student);
         if (studentInfo == null) {
@@ -91,10 +78,11 @@ public class StudentServiceImpl implements StudentService {
         if (studentRequest.getDateOfBirth() != null) studentInfo.setDateOfBirth(studentRequest.getDateOfBirth());
         studentInfoRepository.save(studentInfo);
         studentRepository.save(student);
-        StudentResponse studentResponse = studentResponseMapper.INSTANCE.getStudentResponse(student, studentInfo);
-        return new DataResponse("200", studentResponse);
+        return studentResponseMapper.INSTANCE.getStudentResponse(student, studentInfo);
     }
 
+    @Override
+    @CacheEvict(value = "StudentResponse")
     public StudentResponse deleteStudentByStudentId(Integer studentId){
         Student student = studentRepository.findStudentByStudentId(studentId);
         StudentInfo studentInfo = studentInfoRepository.findStudentInfoByStudent(student);
@@ -132,7 +120,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public Page<StudentResponse> getStudentByCodeAndNameAndDate(StudentCodeAndNameAndDateRequest studentCodeAndNameAndDateRequest, Integer pageNumber) {
+    public List<StudentResponse> getStudentByCodeAndNameAndDate(StudentCodeAndNameAndDateRequest studentCodeAndNameAndDateRequest, Integer pageNumber) {
         List<Student> studentList = new ArrayList<>();
         if (studentCodeAndNameAndDateRequest.getCode() == null && studentCodeAndNameAndDateRequest.getName() == null) {
             studentList = (studentRepository.findStudentsByStudentInfo_DateOfBirth(studentCodeAndNameAndDateRequest.getDateOfBirth()));
@@ -156,17 +144,6 @@ public class StudentServiceImpl implements StudentService {
             studentResponse = studentResponseMapper.INSTANCE.getStudentResponse(student, studentInfo);
             studentResponseList.add(studentResponse);
         }
-        // 1. PageListHolder
-        PagedListHolder<StudentResponse> studentPagedListHolder = new PagedListHolder<StudentResponse>(studentResponseList);
-        studentPagedListHolder.setPage(pageNumber - 1);
-        studentPagedListHolder.setPageSize(2);
-
-        //2. PropertyComparator
-        List<StudentResponse> pageSlice = studentPagedListHolder.getPageList();
-        //PropertyComparator.sort(pageSlice, new MutableSortDefinition("id", true, true));
-
-        //3. PageImpl
-        Pageable pageable = PageRequest.of(pageNumber - 1, studentResponseList.size());
-        return new PageImpl<>(pageSlice, pageable, studentResponseList.size());
+        return studentResponseList;
     }
 }
