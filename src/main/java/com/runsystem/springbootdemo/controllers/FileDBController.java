@@ -22,9 +22,6 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class FileDBController {
     @Autowired
-    private FileDBRepository fileDBRepository;
-
-    @Autowired
     private FileDBService fileDBService;
 
     @PostMapping("/upload")
@@ -63,12 +60,31 @@ public class FileDBController {
     }
 
     @GetMapping("/files/{id}")
-    public ResponseEntity<byte[]> getFile(@PathVariable String id) {
+    public ResponseEntity<byte[]> getFile(@PathVariable("id") String id) {
         Long fileDBId = Long.parseLong(id);
-        Optional<FileDB> optionalFileDB = fileDBRepository.findById(fileDBId);
+        Optional<FileDB> optionalFileDB = fileDBService.getById(fileDBId);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + optionalFileDB.get().getName() + "\"")
                 .body(optionalFileDB.get().getData());
+    }
+
+    @PostMapping("/files/search/{word}")
+    public ResponseEntity<List<FileDBResponse>> getFileByWord(@PathVariable("word") String word){
+        List<FileDBResponse> fileDBList = fileDBService.getFilesByWord(word).map(dbFile -> {
+            String fileDownloadUri = ServletUriComponentsBuilder
+                    .fromCurrentContextPath()
+                    .path("/api/auth/files/")
+                    .path(dbFile.getId().toString())
+                    .toUriString();
+
+            return new FileDBResponse(
+                    dbFile.getName(),
+                    fileDownloadUri,
+                    dbFile.getType(),
+                    dbFile.getData().length);
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.status(HttpStatus.OK).body(fileDBList);
     }
 }

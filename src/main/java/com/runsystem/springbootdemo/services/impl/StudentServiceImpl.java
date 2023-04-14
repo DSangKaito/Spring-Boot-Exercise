@@ -11,10 +11,8 @@ import com.runsystem.springbootdemo.repositories.StudentRepository;
 import com.runsystem.springbootdemo.services.StudentService;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.cache.annotation.Cacheable;
 
 import java.util.*;
 
@@ -28,10 +26,17 @@ public class StudentServiceImpl implements StudentService {
     @Autowired
     StudentInfoRepository studentInfoRepository;
 
+//    @Autowired
+//    StudentElasticsearchRepository studentElasticsearchRepository;
+//
+//    @Autowired
+//    StudentInfoElasticsearchRepository studentInfoElasticsearchRepository;
+
     StudentResponseMapper studentResponseMapper = Mappers.getMapper(StudentResponseMapper.class);
 
+
     @Override
-    @Cacheable(value = "StudentResponse")
+//    @Cacheable(value = "StudentResponse") //-----USE REDIS
     public List<StudentResponse> getAllStudent() {
         List<Student> studentList = studentRepository.findAll();
         if (studentList.size() == 0) {
@@ -49,7 +54,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    @Cacheable(value = "StudentResponse")
+//    @Cacheable(value = "StudentResponse") //------USE REDIS
     public StudentResponse getStudentByStudentId(Integer studentId) {
         Student student = studentRepository.findStudentByStudentId(studentId);
         StudentInfo studentInfo = studentInfoRepository.findStudentInfoByStudent(student);
@@ -57,7 +62,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    @CachePut(value = "StudentResponse")
+//    @CachePut(value = "StudentResponse") //------USE REDIS
     public StudentResponse updateStudentByStudentId(StudentRequest studentRequest, Integer id) {
         Student student = studentRepository.findStudentByStudentId(id);
         if (student == null) {
@@ -78,11 +83,13 @@ public class StudentServiceImpl implements StudentService {
         if (studentRequest.getDateOfBirth() != null) studentInfo.setDateOfBirth(studentRequest.getDateOfBirth());
         studentInfoRepository.save(studentInfo);
         studentRepository.save(student);
+//        studentElasticsearchRepository.save(student);
+//        studentInfoElasticsearchRepository.save(studentInfo);
         return studentResponseMapper.INSTANCE.getStudentResponse(student, studentInfo);
     }
 
     @Override
-    @CacheEvict(value = "StudentResponse")
+//    @CacheEvict(value = "StudentResponse") //------USE REDIS
     public StudentResponse deleteStudentByStudentId(Integer studentId){
         Student student = studentRepository.findStudentByStudentId(studentId);
         StudentInfo studentInfo = studentInfoRepository.findStudentInfoByStudent(student);

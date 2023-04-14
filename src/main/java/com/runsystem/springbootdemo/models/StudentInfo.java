@@ -1,6 +1,5 @@
 package com.runsystem.springbootdemo.models;
 
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,6 +10,7 @@ import java.time.LocalDate;
 @Table(schema = "student_info")
 @Getter
 @Setter
+//@Document(indexName = "student_index")
 public class StudentInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

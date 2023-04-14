@@ -10,6 +10,7 @@ import javax.persistence.*;
 @Table(schema = "student")
 @Getter
 @Setter
+//@Document(indexName = "studenInfot_index")
 public class Student {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
