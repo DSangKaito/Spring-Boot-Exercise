@@ -7,3 +7,7 @@
      JPA
      lombok
 # Về các kiến thức khác đã tìm hiểu với output là file doc trên drive
+# New update (14/04) - Elasticsearch
+     Đọc file word, excel, pdf
+     Lưu data vào elasticsearch bằng spring data elasticsearch
+     Thực hiện tìm kiếm bằng elasticsearch
