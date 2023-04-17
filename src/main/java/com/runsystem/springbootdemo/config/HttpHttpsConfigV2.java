@@ -16,18 +16,24 @@ public class HttpHttpsConfigV2 {
     // If this parameter is empty then do not redirect HTTP to HTTPS
     //
     // Defined in application.properties file
+    /** sslKeyStore */
     @Value(value = "${server.ssl.key-store:}")
     private String sslKeyStore;
 
     // Defined in application.properties file
     // (User-defined Property)
+    /** httpPort */
     @Value(value = "${server.http.port:80}")
     private int httpPort;
 
     // Defined in application.properties file
+    /** httpsPort */
     @Value("${server.port:443}")
     int httpsPort;
 
+    /**
+     * @return tomcat TomcatServletWebServerFactory
+     */
     @Bean
     public ServletWebServerFactory servletContainer() {
         boolean needRedirectToHttps = sslKeyStore != null && !sslKeyStore.isEmpty();
@@ -55,6 +61,9 @@ public class HttpHttpsConfigV2 {
         return tomcat;
     }
 
+    /**
+     * @return connector Connector
+     */
     private Connector redirectConnector() {
         Connector connector = new Connector(TomcatServletWebServerFactory.DEFAULT_PROTOCOL);
         connector.setScheme("http");

@@ -10,7 +10,10 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class StudentCodeAndNameAndDateRequest {
+    /** code of student from  request */
     String code;
+    /** name of student from request */
     String name;
+    /** date of birth from request */
     LocalDate dateOfBirth;
 }

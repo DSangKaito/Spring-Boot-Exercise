@@ -8,6 +8,8 @@ import lombok.Setter;
 @Setter
 @Getter
 public class LoginRequest {
+    /** username from request */
     private String username;
+    /** password from request */
     private String password;
 }

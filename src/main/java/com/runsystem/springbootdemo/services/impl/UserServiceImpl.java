@@ -9,12 +9,18 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-
 @Service
 public class UserServiceImpl implements UserDetailsService {
+    /** create bean UserRepository */
     @Autowired
     private UserRepository userRepository;
 
+    /**
+     * This function to get user by id
+     * @param id Interger type from controller
+     * @return CustomUserDetails when successful
+     * @throws UsernameNotFoundException when no user is found
+     */
     public UserDetails loadUserById(Integer id) {
         // Kiểm tra xem user có tồn tại trong database không?
         User user = userRepository.findUserByUserId(id);
@@ -32,6 +38,5 @@ public class UserServiceImpl implements UserDetailsService {
         }
         return new CustomUserDetails(user);
     }
-
 
 }

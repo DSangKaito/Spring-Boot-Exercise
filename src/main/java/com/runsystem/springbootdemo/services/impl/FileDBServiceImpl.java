@@ -20,18 +20,26 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Stream;
 
 @Service
 public class FileDBServiceImpl implements FileDBService {
-
+    /** create bean FileDBRepository */
     @Autowired
     FileDBRepository fileDBRepository;
 
+    /** create bean FileDBElasticsearchRepository */
     @Autowired
     FileDBElasticsearchRepository fileDBElasticsearchRepository;
 
+    /**
+     * This function to get value from cell
+     * @param cell Cell type from excel
+     * @return Object value
+     */
     private static Object getCellValue(Cell cell) {
         CellType cellType = cell.getCellTypeEnum();
         Object cellValue = null;
@@ -64,16 +72,15 @@ public class FileDBServiceImpl implements FileDBService {
     @Override
     public FileDB store(MultipartFile file) throws IOException {
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
-        FileDB fileDB = new FileDB(fileName, file.getContentType(), file.getBytes());
+        final FileDB fileDB = new FileDB(fileName, file.getContentType(), file.getBytes());
         String tempFilePath = null;
         StringBuilder content = new StringBuilder();
 
-        if (!(Objects.equals(file.getContentType(), FileType.DOCUMENT)
-                || Objects.equals(file.getContentType(), FileType.MSWORD)
-                || Objects.equals(file.getContentType(), FileType.SHEET)
-                || Objects.equals(file.getContentType(), FileType.MS_EXCEL)
-                || Objects.equals(file.getContentType(), FileType.PDF)))
+        if (!(Objects.equals(file.getContentType(), FileType.DOCUMENT) || Objects.equals(file.getContentType(), FileType.MSWORD) || Objects.equals(
+                file.getContentType(), FileType.SHEET) || Objects.equals(file.getContentType(), FileType.MS_EXCEL) || Objects.equals(
+                file.getContentType(), FileType.PDF))) {
             return null;
+        }
 
         // get path of file
         try {
@@ -85,10 +92,9 @@ public class FileDBServiceImpl implements FileDBService {
         }
 
         // read word file
-        if ((Objects.equals(file.getContentType(), FileType.DOCUMENT)
-                || Objects.equals(file.getContentType(), FileType.MSWORD))){
+        if ((Objects.equals(file.getContentType(), FileType.DOCUMENT) || Objects.equals(file.getContentType(), FileType.MSWORD))) {
             try {
-                FileInputStream fileword = new FileInputStream(tempFilePath);
+                InputStream fileword = Files.newInputStream(Paths.get(tempFilePath));
                 XWPFDocument document = new XWPFDocument(OPCPackage.open(fileword));
                 XWPFWordExtractor wordExtractor = new XWPFWordExtractor(document);
                 content = new StringBuilder(wordExtractor.getText());
@@ -100,12 +106,12 @@ public class FileDBServiceImpl implements FileDBService {
         }
 
         // read pdf file
-        if((Objects.equals(file.getContentType(), FileType.PDF))){
+        if ((Objects.equals(file.getContentType(), FileType.PDF))) {
             try {
                 //create PdfReader witj tempFilePath
                 PdfReader filePDF = new PdfReader(tempFilePath);
                 //Sử dụng PdfTextExtractor để đọc toàn bộ text ở trang 100
-                for (int i = 1; i <= filePDF.getNumberOfPages(); i++){
+                for (int i = 1; i <= filePDF.getNumberOfPages(); i++) {
                     content.append(PdfTextExtractor.getTextFromPage(filePDF, i));
                 }
             } catch (IOException ex) {
@@ -114,10 +120,9 @@ public class FileDBServiceImpl implements FileDBService {
         }
 
         //read Excel file
-        if (Objects.equals(file.getContentType(), FileType.SHEET)
-                || Objects.equals(file.getContentType(), FileType.MS_EXCEL)){
+        if (Objects.equals(file.getContentType(), FileType.SHEET) || Objects.equals(file.getContentType(), FileType.MS_EXCEL)) {
             try {
-                FileInputStream fileExcel = new FileInputStream(new File(tempFilePath));
+                InputStream fileExcel = Files.newInputStream(new File(tempFilePath).toPath());
                 // create workbook for file xlsx
                 XSSFWorkbook workbook = new XSSFWorkbook(fileExcel);
                 // get first worksheet in workbook
@@ -135,9 +140,9 @@ public class FileDBServiceImpl implements FileDBService {
                             content = new StringBuilder(content + "/");
                             continue;
                         }
-                        content.append("/").append(cellValue.toString());
+                        content = new StringBuilder(content + "/" + cellValue.toString());
                     }
-                    content.append("\n");
+                    content = new StringBuilder(content + "\n");
                 }
                 fileExcel.close();
             } catch (Exception e) {
@@ -166,7 +171,7 @@ public class FileDBServiceImpl implements FileDBService {
     public Stream<FileDB> getFilesByWord(String word) {
         List<FileDBElasticsearch> fileDBElasticsearchList = fileDBElasticsearchRepository.findFileDBElasticsearchByContentContainsIgnoreCase(word);
         List<FileDB> fileDBList = new ArrayList<FileDB>();
-        FileDB fileDB ;
+        FileDB fileDB;
         for (FileDBElasticsearch el : fileDBElasticsearchList) {
             fileDB = fileDBRepository.findFileDBById(el.getId());
             fileDBList.add(fileDB);

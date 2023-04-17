@@ -13,17 +13,28 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api")
 public class SignUpController {
 
+    /** create bean userServiceImpl from service implement */
     @Autowired
     UserServiceImpl userService;
+
+    /** create bean signUpService from stereotype */
     @Autowired
     SignUpService signUpService;
 
+    /**
+     * @param signUpRequest form request
+     * @return SignUpResponse
+     */
     @PutMapping("/add")
-    public SignUpResponse addUser(@RequestBody SignUpRequest signUpRequest){
-        if(signUpRequest == null) return new SignUpResponse(Message.INPUT_DATA_NULL);
-        Validation validation = new Validation(signUpRequest.getUsername(),signUpRequest.getPassword(),signUpRequest.getRePassword());
+    public SignUpResponse addUser(@RequestBody SignUpRequest signUpRequest) {
+        if (signUpRequest == null) {
+            return new SignUpResponse(Message.INPUT_DATA_NULL);
+        }
+        Validation validation = new Validation(signUpRequest.getUsername(), signUpRequest.getPassword(), signUpRequest.getRePassword());
         validation.checkValid();
-        if (!signUpService.addUser(signUpRequest)) return new SignUpResponse(Message.ACCOUNT_EXITS);
+        if (!signUpService.addUser(signUpRequest)) {
+            return new SignUpResponse(Message.ACCOUNT_EXITS);
+        }
         return new SignUpResponse(Message.LOGIN_SUCCESS);
     }
 }

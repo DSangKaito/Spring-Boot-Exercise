@@ -3,7 +3,6 @@ package com.runsystem.springbootdemo.controllers;
 import com.runsystem.springbootdemo.common.Message;
 import com.runsystem.springbootdemo.models.FileDB;
 import com.runsystem.springbootdemo.payloads.response.FileDBResponse;
-import com.runsystem.springbootdemo.repositories.FileDBRepository;
 import com.runsystem.springbootdemo.services.FileDBService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -21,9 +20,14 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class FileDBController {
+    /** create fileDB bean */
     @Autowired
     private FileDBService fileDBService;
 
+    /**
+     * @param file MultipartFile style from request
+     * @return ResponseEntity
+     */
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
         String message = "";
@@ -40,49 +44,45 @@ public class FileDBController {
         }
     }
 
+    /**
+     * @return ResponseEntity
+     */
     @GetMapping("/files")
     public ResponseEntity<List<FileDBResponse>> getListFiles() {
         List<FileDBResponse> files = fileDBService.getAllFiles().map(dbFile -> {
-            String fileDownloadUri = ServletUriComponentsBuilder
-                    .fromCurrentContextPath()
-                    .path("/api/auth/files/")
-                    .path(dbFile.getId().toString())
-                    .toUriString();
+            String fileDownloadUri =
+                    ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/auth/files/").path(dbFile.getId().toString()).toUriString();
 
-            return new FileDBResponse(
-                    dbFile.getName(),
-                    fileDownloadUri,
-                    dbFile.getType(),
-                    dbFile.getData().length);
+            return new FileDBResponse(dbFile.getName(), fileDownloadUri, dbFile.getType(), dbFile.getData().length);
         }).collect(Collectors.toList());
 
         return ResponseEntity.status(HttpStatus.OK).body(files);
     }
 
+    /**
+     * @param id String style from request
+     * @return ResponseEntity
+     */
     @GetMapping("/files/{id}")
     public ResponseEntity<byte[]> getFile(@PathVariable("id") String id) {
         Long fileDBId = Long.parseLong(id);
         Optional<FileDB> optionalFileDB = fileDBService.getById(fileDBId);
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + optionalFileDB.get().getName() + "\"")
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + optionalFileDB.get().getName() + "\"")
                 .body(optionalFileDB.get().getData());
     }
 
+    /**
+     * @param word String style from request
+     * @return ResponseEntity
+     */
     @PostMapping("/files/search/{word}")
-    public ResponseEntity<List<FileDBResponse>> getFileByWord(@PathVariable("word") String word){
+    public ResponseEntity<List<FileDBResponse>> getFileByWord(@PathVariable("word") String word) {
         List<FileDBResponse> fileDBList = fileDBService.getFilesByWord(word).map(dbFile -> {
-            String fileDownloadUri = ServletUriComponentsBuilder
-                    .fromCurrentContextPath()
-                    .path("/api/auth/files/")
-                    .path(dbFile.getId().toString())
-                    .toUriString();
+            String fileDownloadUri =
+                    ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/auth/files/").path(dbFile.getId().toString()).toUriString();
 
-            return new FileDBResponse(
-                    dbFile.getName(),
-                    fileDownloadUri,
-                    dbFile.getType(),
-                    dbFile.getData().length);
+            return new FileDBResponse(dbFile.getName(), fileDownloadUri, dbFile.getType(), dbFile.getData().length);
         }).collect(Collectors.toList());
 
         return ResponseEntity.status(HttpStatus.OK).body(fileDBList);

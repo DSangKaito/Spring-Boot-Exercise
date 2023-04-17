@@ -12,7 +12,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableElasticsearchRepositories(basePackages = "com.runsystem.springbootdemo.elasticsearch.repositories")
 @EnableJpaRepositories(basePackages = "com.runsystem.springbootdemo.repositories")
 public class SpringbootdemoApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(SpringbootdemoApplication.class, args);
 	}

@@ -19,19 +19,16 @@ import java.util.List;
 @EnableSwagger2
 public class SwaggerConfiguration {
 
+    /** set AUTHORIZATION_HEADER */
     public static final String AUTHORIZATION_HEADER = "Authorization";
 
     @Bean
     public Docket api() {
-        return new Docket(DocumentationType.SWAGGER_2)
-                .securityContexts(Arrays.asList(securityContext()))
-                .securitySchemes(Arrays.asList(apiKey()))
+        return new Docket(DocumentationType.SWAGGER_2).securityContexts(Arrays.asList(securityContext())).securitySchemes(Arrays.asList(apiKey()))
                 .select()
-//                .apis(RequestHandlerSelectors.any())
-//                .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
-                .apis(RequestHandlerSelectors.basePackage("com.runsystem.springbootdemo"))
-                .paths(PathSelectors.any())
-                .build();
+                //                .apis(RequestHandlerSelectors.any())
+                //                .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
+                .apis(RequestHandlerSelectors.basePackage("com.runsystem.springbootdemo")).paths(PathSelectors.any()).build();
     }
 
     private ApiKey apiKey() {
@@ -39,19 +36,14 @@ public class SwaggerConfiguration {
     }
 
     private SecurityContext securityContext() {
-        return SecurityContext.builder()
-                .securityReferences(defaultAuth())
-                .build();
+        return SecurityContext.builder().securityReferences(defaultAuth()).build();
     }
 
     List<SecurityReference> defaultAuth() {
-        AuthorizationScope authorizationScope
-                = new AuthorizationScope("global", "accessEverything");
+        AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
         AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
         authorizationScopes[0] = authorizationScope;
         return Arrays.asList(new SecurityReference("JWT", authorizationScopes));
     }
-
-
 
 }

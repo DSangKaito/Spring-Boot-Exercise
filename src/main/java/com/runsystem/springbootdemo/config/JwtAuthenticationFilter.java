@@ -20,15 +20,17 @@ import java.io.IOException;
 @Slf4j
 @NoArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    /** JwtTokenProvider from jsonwebtoken */
     @Autowired
     private JwtTokenProvider tokenProvider;
 
+    /** UserServiceImpl from service implement */
     @Autowired
     private UserServiceImpl userService;
 
-
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         try {
             // Lấy jwt từ request
             String jwt = getJwtFromRequest(request);
@@ -38,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Integer userId = tokenProvider.getUserIdFromJWT(jwt).intValue();
                 // Lấy thông tin người dùng từ id
                 UserDetails userDetails = userService.loadUserById(userId);
-                if(userDetails != null) {
+                if (userDetails != null) {
                     // Nếu người dùng hợp lệ, set thông tin cho Seturity Context
                     UsernamePasswordAuthenticationToken
                             authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -54,6 +56,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    /**
+     * @param request request from HttpServletRequest
+     * @return bearerToken this from request.getHeader
+     */
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         // Kiểm tra xem header Authorization có chứa thông tin jwt không

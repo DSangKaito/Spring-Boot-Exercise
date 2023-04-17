@@ -10,7 +10,10 @@ import java.util.stream.Stream;
 @Component
 public interface FileDBService {
     FileDB store(MultipartFile file) throws IOException;
+
     Stream<FileDB> getAllFiles();
+
     Optional<FileDB> getById(Long id);
+
     Stream<FileDB> getFilesByWord(String word);
 }

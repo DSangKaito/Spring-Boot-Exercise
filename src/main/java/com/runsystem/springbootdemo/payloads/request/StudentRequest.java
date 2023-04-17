@@ -10,8 +10,12 @@ import java.time.LocalDate;
 @Setter
 @Getter
 public class StudentRequest {
+    /** name of student from request */
     private String name;
+    /** date of birth student from request */
     private LocalDate dateOfBirth;
+    /** address of student from request */
     private String address;
+    /** average score of student from request */
     private Double averageScore;
 }

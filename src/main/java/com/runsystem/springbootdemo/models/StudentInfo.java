@@ -12,21 +12,26 @@ import java.time.LocalDate;
 @Setter
 //@Document(indexName = "student_index")
 public class StudentInfo {
+    /** id of Student's Information */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "info_id", nullable = false)
     private int infoId;
 
+    /** student match to this information */
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "student_id", referencedColumnName = "student_id", nullable = false)
     private Student student;
 
+    /** address of student */
     @Column(name = "address")
     private String address;
 
+    /** average score of student */
     @Column(name = "average_score")
-    private Double averageCode;
+    private Double averageScore;
 
+    /** date of birth of student */
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 }

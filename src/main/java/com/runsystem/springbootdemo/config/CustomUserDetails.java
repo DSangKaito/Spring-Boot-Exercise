@@ -1,21 +1,23 @@
 package com.runsystem.springbootdemo.config;
 
-
 import com.runsystem.springbootdemo.models.User;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 
-
 @Data
 public class CustomUserDetails implements UserDetails {
-    User user;
+    /** user from data of project */
+    private User user;
 
-    public CustomUserDetails (User user) {
+    /**
+     * This is constructor have 1 parameter
+     * @param user the user
+     */
+    public CustomUserDetails(User user) {
         this.user = user;
     }
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -46,7 +48,6 @@ public class CustomUserDetails implements UserDetails {
     public boolean isCredentialsNonExpired() {
         return true;
     }
-
 
     @Override
     public boolean isEnabled() {

@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 
 @Primary
 @Repository
-public interface StudentInfoRepository extends JpaRepository<StudentInfo, Integer>{
+public interface StudentInfoRepository extends JpaRepository<StudentInfo, Integer> {
     StudentInfo findStudentInfoByStudent(Student student);
 }

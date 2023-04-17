@@ -9,12 +9,14 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper
 public interface StudentResponseMapper {
+    /** create INSTANCE of StudentResponseMapper */
     StudentResponseMapper INSTANCE = Mappers.getMapper(StudentResponseMapper.class);
+
     @Mapping(source = "student.studentId", target = "id")
     @Mapping(source = "student.studentCode", target = "code")
     @Mapping(source = "student.studentName", target = "name")
     @Mapping(source = "studentInfo.address", target = "address")
-    @Mapping(source = "studentInfo.averageCode", target = "averageScore")
+    @Mapping(source = "studentInfo.averageScore", target = "averageScore")
     @Mapping(source = "studentInfo.dateOfBirth", target = "dateOfBirth")
     StudentResponse getStudentResponse(Student student, StudentInfo studentInfo);
 }

@@ -10,34 +10,25 @@ import java.util.Date;
 @Slf4j
 public class JwtTokenProvider {
     // Đoạn JWT_SECRET này là bí mật, chỉ có phía server biết
-    private final String JWT_SECRET = "kaitooooo";
+    /** set JWT secret */
+    private static final String JWT_SECRET = "kaitooooo";
 
     //Thời gian có hiệu lực của chuỗi jwt
-    private final long JWT_EXPIRATION = 604800000L;
-
-
-
-
+    /** set tiome out */
+    private static final long JWT_EXPIRATION = 604800000L;
 
     // Tạo ra jwt từ thông tin user
     public String generateToken(CustomUserDetails userDetails) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION);
         // Tạo chuỗi json web token từ id của user.
-        return Jwts.builder()
-                .setSubject(Long.toString(userDetails.getUser().getUserId()))
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
-                .compact();
+        return Jwts.builder().setSubject(Long.toString(userDetails.getUser().getUserId())).setIssuedAt(now).setExpiration(expiryDate)
+                .signWith(SignatureAlgorithm.HS512, JWT_SECRET).compact();
     }
 
     // Lấy thông tin user từ jwt
     public Long getUserIdFromJWT(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(JWT_SECRET)
-                .parseClaimsJws(token)
-                .getBody();
+        Claims claims = Jwts.parser().setSigningKey(JWT_SECRET).parseClaimsJws(token).getBody();
 
         return Long.parseLong(claims.getSubject());
     }

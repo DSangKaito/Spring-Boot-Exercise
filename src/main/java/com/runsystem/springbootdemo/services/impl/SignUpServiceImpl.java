@@ -10,16 +10,18 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class SignUpServiceImpl implements SignUpService {
+    /** create bean PasswordEncoder */
     @Autowired
     PasswordEncoder passwordEncoder;
 
+    /** create bean UserRepository */
     @Autowired
     UserRepository userRepository;
 
     @Override
-    public boolean addUser(SignUpRequest signUpRequest){
+    public boolean addUser(SignUpRequest signUpRequest) {
         User user = userRepository.findUserByUsername(signUpRequest.getUsername());
-        if(user != null){
+        if (user != null) {
             return false;
         }
         user = new User();
